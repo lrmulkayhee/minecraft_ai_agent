@@ -2,7 +2,7 @@ import gym
 import minerl
 import numpy as np
 import requests
-from transformers import pipeline, GPT2LMHeadModel, GPT2Tokenizer
+from transformers import pipeline
 from stable_baselines3 import PPO
 
 # Initialize the Minecraft environment
@@ -15,6 +15,44 @@ class MinecraftAgent:
         self.model = PPO('CnnPolicy', self.env, verbose=1)
         self.sentiment_analysis = pipeline('sentiment-analysis', model='distilbert-base-uncased')
         self.text_generator = pipeline('text-generation', model='gpt-2')
+        self.goals = []
+
+    def generate_goal(self):
+        # Example of generating a goal based on the environment state
+        obs = self.env.reset()
+        if "tree" in obs:
+            goal = "collect wood"
+        elif "house" not in obs:
+            goal = "build house"
+        else:
+            goal = "explore"
+        self.set_goal(goal)
+
+    def set_goal(self, goal):
+        self.goals.append(goal)
+        print(f"Goal set: {goal}")
+
+    def plan_actions(self):
+        # Example of a simple planning algorithm
+        if not self.goals:
+            print("No goals set.")
+            return []
+
+        goal = self.goals.pop(0)
+        print(f"Planning actions to achieve goal: {goal}")
+
+        # Placeholder for a more sophisticated planning algorithm
+        actions = []
+        if goal == "collect wood":
+            actions = ["move to tree", "collect wood"]
+        elif goal == "build house":
+            actions = ["collect wood", "build house"]
+        elif goal == "explore":
+            actions = ["move randomly"]
+        else:
+            print(f"Unknown goal: {goal}")
+
+        return actions
 
     def train(self, timesteps=10000):
         self.model.learn(total_timesteps=timesteps)
@@ -56,6 +94,13 @@ class MinecraftAgent:
 
 # Create an instance of the agent
 agent = MinecraftAgent()
+
+# Generate a goal for the agent
+agent.generate_goal()
+
+# Plan actions to achieve the goal
+actions = agent.plan_actions()
+print(f"Planned actions: {actions}")
 
 # Train the agent
 agent.train(timesteps=10000)

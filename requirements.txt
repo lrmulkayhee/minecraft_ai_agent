@@ -3,3 +3,5 @@ minerl
 numpy
 requests
 tensorflow
+transformers
+stable-baselines3
